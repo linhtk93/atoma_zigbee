@@ -692,7 +692,7 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
       osal_nv_write(ZCD_NV_LIGHT_STATE, 0, 1, &zclSampleLight_OnOff);
     }
 
-    
+    /*
     zclReportCmd_t rptcmd; 
     rptcmd.numAttr = 1;
     rptcmd.attrList[0].attrID = ATTRID_ON_OFF;
@@ -704,6 +704,13 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     zclSampleLight_DstAddr.addr.shortAddr = 0;
     zcl_SendReportCmd(SAMPLELIGHT_ENDPOINT,&zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &rptcmd, ZCL_FRAME_SERVER_CLIENT_DIR, false, 0 );
     //end update
+    */
+    
+     // enable permit joining on all routers
+    zAddrType_t dstAddr;
+    dstAddr.addrMode = AddrBroadcast;
+    dstAddr.addr.shortAddr = 0xffff;          
+    ZDP_MgmtPermitJoinReq(&dstAddr, 0xFF, TRUE, FALSE);
   }
 }
 
