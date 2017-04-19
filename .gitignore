@@ -3,3 +3,12 @@
 *.map
 *.wsdt
 *.pbi
+*.a51
+*.hex
+*.cout
+*.pbd
+*.browse
+*.r51
+*.dep
+*.ewp
+*.wspos

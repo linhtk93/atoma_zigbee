@@ -101,7 +101,7 @@ C:\Users\Wiki\Desktop\Atoma_zigbee\Components\zmac\f8w
 -DTC_LINKKEY_JOIN=1
 -DNV_INIT=1
 -DNV_RESTORE=1
--DxHOLD_AUTO_START=1
+-DHOLD_AUTO_START=1
 -DxZTOOL_P1=1
 -DxMT_TASK=1
 -DxMT_APP_FUNC=1
@@ -124,6 +124,7 @@ C:\Users\Wiki\Desktop\Atoma_zigbee\Components\zmac\f8w
 -DHAL_UART=TRUE
 -DHAL_LED=TRUE
 -DHAL_KEY=TRUE
+-DISR_KEYINTERRUPT=1
 -D__CHAR_BITS__=8
 -D__CHAR_MAX__=0xff
 -D__CHAR_MIN__=0

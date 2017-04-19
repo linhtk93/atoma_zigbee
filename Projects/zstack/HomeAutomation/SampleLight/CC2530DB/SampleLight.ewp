@@ -306,7 +306,7 @@
           <state>TC_LINKKEY_JOIN</state>
           <state>NV_INIT</state>
           <state>NV_RESTORE</state>
-          <state>xHOLD_AUTO_START</state>
+          <state>HOLD_AUTO_START</state>
           <state>xZTOOL_P1</state>
           <state>xMT_TASK</state>
           <state>xMT_APP_FUNC</state>
