@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //
-// IAR C/C++ Compiler V9.30.1.3056 for 8051               17/Apr/2017  16:56:29
+// IAR C/C++ Compiler V9.30.1.3056 for 8051               19/Apr/2017  10:06:00
 // Copyright 2004-2015 IAR Systems AB.
 // Standalone license - IAR Embedded Workbench for 8051
 //
@@ -45,7 +45,7 @@
 //        xZCL_EZMODE -D ZCL_BASIC -D ZCL_IDENTIFY -D ZCL_ON_OFF -D ZCL_SCENES
 //        -D ZCL_GROUPS -D xZCL_LEVEL_CTRL -D ZCL_DIAGNOSTIC -D
 //        FEATURE_SYSTEM_STATS -D HAL_UART=TRUE -D HAL_LED=TRUE -D HAL_KEY=TRUE
-//        -lC
+//        -D ISR_KEYINTERRUPT -lC
 //        C:\Users\Wiki\Desktop\Atoma_zigbee\Projects\zstack\HomeAutomation\SampleLight\CC2530DB\CoordinatorEB\List
 //        -lA
 //        C:\Users\Wiki\Desktop\Atoma_zigbee\Projects\zstack\HomeAutomation\SampleLight\CC2530DB\CoordinatorEB\List
@@ -743,14 +743,14 @@ InitBoard:
 //  137     /* Initialize Key stuff */
 //  138     #if defined (ISR_KEYINTERRUPT)
 //  139     HalKeyConfig(HAL_KEY_INTERRUPT_ENABLE , OnBoard_KeyCallback);
-//  140     #else
-//  141     HalKeyConfig(HAL_KEY_INTERRUPT_DISABLE, OnBoard_KeyCallback);
 ??InitBoard_0:
         ; Setup parameters for call to function HalKeyConfig
         MOV     R2,#`??OnBoard_KeyCallback::?relay` & 0xff
         MOV     R3,#(`??OnBoard_KeyCallback::?relay` >> 8) & 0xff
-        MOV     R1,#0x0
+        MOV     R1,#0x1
         LCALL   `??HalKeyConfig::?relay`; Banked call to: HalKeyConfig
+//  140     #else
+//  141     HalKeyConfig(HAL_KEY_INTERRUPT_DISABLE, OnBoard_KeyCallback);
 //  142     #endif
 //  143   }
 //  144 }
