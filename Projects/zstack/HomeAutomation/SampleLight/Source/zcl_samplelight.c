@@ -708,11 +708,14 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     /*
      // enable permit joining on all routers
     zAddrType_t dstAddr;
-    dstAddr.addrMode = AddrBroadcast;
-    dstAddr.addr.shortAddr = 0xffff;          
+    dstAddr.addrMode = Addr16Bit;//AddrBroadcast;
+    dstAddr.addr.shortAddr = 0xFFFC;          
     ZDP_MgmtPermitJoinReq(&dstAddr, 0xFF, TRUE, FALSE);
     */
-    /*
+    
+    // ZCL_FRAME_CLIENT_SERVER_DIR -> coord to router
+    // ZCL_FRAME_SERVER_CLIENT_DIR -> router to coord
+    
     //send data control
     zclWriteCmd_t wrtcmd; 
     wrtcmd.numAttr = 1;
@@ -722,9 +725,11 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     
     zclSampleLight_DstAddr.addrMode = (afAddrMode_t)Addr16Bit;
     zclSampleLight_DstAddr.addr.shortAddr = 0xFFFC;
-    zcl_SendWrite(SAMPLELIGHT_ENDPOINT,&zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &wrtcmd, ZCL_FRAME_SERVER_CLIENT_DIR, false, 0 ); 
-    */
+    zclSampleLight_DstAddr.endPoint = SAMPLELIGHT_ENDPOINT;
+    zcl_SendWrite(SAMPLELIGHT_ENDPOINT,&zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &wrtcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0 ); 
     
+    /*
+    //send command: read attribute to router
     zclReadCmd_t readcmd;
     readcmd.numAttr = 1;
     readcmd.attrID[0] = 0;
@@ -740,6 +745,28 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     zclSampleLight_DstAddr.endPoint = SAMPLELIGHT_ENDPOINT;
     zcl_SendRead(SAMPLELIGHT_ENDPOINT, &zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &readcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0);
     //zcl_SendReadRsp(SAMPLELIGHT_ENDPOINT, &zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &readcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0);
+    */
+    /*
+    //send command on/off
+    afAddrType_t destaddr;
+    destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
+    destaddr.addrMode = (afAddrMode_t)Addr16Bit;
+    destaddr.addr.shortAddr = 0xFFFC;
+    zcl_SendCommand(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, COMMAND_TOGGLE, TRUE , ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, FALSE , 0, 0, 1, 0);
+    */
+    /*
+    afAddrType_t destaddr;
+    destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
+    destaddr.addrMode = (afAddrMode_t)Addr16Bit;
+    destaddr.addr.shortAddr = 0xFFFC;
+    
+    zclWriteCmd_t cmdx;
+    cmdx.numAttr = 1;
+    cmdx.attrList[0].attrID = ATTRID_ON_OFF;
+    cmdx.attrList[0].dataType = ZCL_DATATYPE_BOOLEAN;
+    cmdx.attrList[0].attrData = (uint8*)&zclSampleLight_OnOff;
+    zcl_SendWriteRequest(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &cmdx, ZCL_CMD_WRITE, ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0);
+    */
   }
 }
 
