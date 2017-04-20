@@ -705,12 +705,41 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     zcl_SendReportCmd(SAMPLELIGHT_ENDPOINT,&zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &rptcmd, ZCL_FRAME_SERVER_CLIENT_DIR, false, 0 );
     //end update
     */
-    
+    /*
      // enable permit joining on all routers
     zAddrType_t dstAddr;
     dstAddr.addrMode = AddrBroadcast;
     dstAddr.addr.shortAddr = 0xffff;          
     ZDP_MgmtPermitJoinReq(&dstAddr, 0xFF, TRUE, FALSE);
+    */
+    /*
+    //send data control
+    zclWriteCmd_t wrtcmd; 
+    wrtcmd.numAttr = 1;
+    wrtcmd.attrList[0].attrID = ATTRID_ON_OFF;
+    wrtcmd.attrList[0].dataType = ZCL_DATATYPE_BOOLEAN;
+    wrtcmd.attrList[0].attrData = (uint8*)&zclSampleLight_OnOff;
+    
+    zclSampleLight_DstAddr.addrMode = (afAddrMode_t)Addr16Bit;
+    zclSampleLight_DstAddr.addr.shortAddr = 0xFFFC;
+    zcl_SendWrite(SAMPLELIGHT_ENDPOINT,&zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &wrtcmd, ZCL_FRAME_SERVER_CLIENT_DIR, false, 0 ); 
+    */
+    
+    zclReadCmd_t readcmd;
+    readcmd.numAttr = 1;
+    readcmd.attrID[0] = 0;
+    //zclReadRspCmd_t readcmd;
+    //readcmd.numAttr = 1;
+    //readcmd.attrList[0].attrID = ATTRID_ON_OFF;
+    //readcmd.attrList[0].dataType = ZCL_DATATYPE_BOOLEAN;
+    //readcmd.attrList[0].status = ZCL_STATUS_SUCCESS;
+    //readcmd.attrList[0].data = (uint8*)&zclSampleLight_OnOff;
+    
+    zclSampleLight_DstAddr.addrMode = (afAddrMode_t)Addr16Bit;
+    zclSampleLight_DstAddr.addr.shortAddr = 0xFFFC;
+    zclSampleLight_DstAddr.endPoint = SAMPLELIGHT_ENDPOINT;
+    zcl_SendRead(SAMPLELIGHT_ENDPOINT, &zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &readcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0);
+    //zcl_SendReadRsp(SAMPLELIGHT_ENDPOINT, &zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &readcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0);
   }
 }
 
