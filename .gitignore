@@ -12,3 +12,8 @@
 *.dep
 *.ewp
 *.wspos
+*.ewd
+*.bat
+*.xcl
+*.dbgdt
+*.dni

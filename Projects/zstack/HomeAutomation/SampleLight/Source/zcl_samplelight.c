@@ -389,24 +389,23 @@ void zclSampleLight_Init( byte task_id )
 #ifdef ZGP_AUTO_TT
   zgpTranslationTable_RegisterEP ( &zclSampleLight_SimpleDesc );
 #endif
-  
-    
-  //return light state in memory when start 
-  if (osal_nv_item_init(ZCD_NV_LIGHT_STATE, 1, NULL) == SUCCESS)
-  {
-     /* Already have LightState in NV, load it */
-     if(osal_nv_read(ZCD_NV_LIGHT_STATE, 0, 1, &zclSampleLight_OnOff) == SUCCESS)
-     {
-        if(zclSampleLight_OnOff==LIGHT_ON)
-        {
-          HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //turn on relay
-        }
-        else 
-        {
-          HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF );  //turn off relay
-        }
-     }
-  }
+   
+//  //return light state in memory when start 
+//  if (osal_nv_item_init(ZCD_NV_LIGHT_STATE, 1, NULL) == SUCCESS)
+//  {
+//     /* Already have LightState in NV, load it */
+//     if(osal_nv_read(ZCD_NV_LIGHT_STATE, 0, 1, &zclSampleLight_OnOff) == SUCCESS)
+//     {
+//        if(zclSampleLight_OnOff==LIGHT_ON)
+//        {
+//          HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //turn on relay
+//        }
+//        else 
+//        {
+//          HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF );  //turn off relay
+//        }
+//     }
+//  }
 
 }
 
@@ -685,13 +684,13 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
       //HalLedSet(HAL_LED_1, HAL_LED_MODE_ON );  //turn off led1
       HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
     }
-    
+    /*
     //update light state into NV memory
     if (osal_nv_item_len(ZCD_NV_LIGHT_STATE))
     {
       osal_nv_write(ZCD_NV_LIGHT_STATE, 0, 1, &zclSampleLight_OnOff);
     }
-
+    */
     /*
     zclReportCmd_t rptcmd; 
     rptcmd.numAttr = 1;
@@ -715,8 +714,8 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     
     // ZCL_FRAME_CLIENT_SERVER_DIR -> coord to router
     // ZCL_FRAME_SERVER_CLIENT_DIR -> router to coord
-    
-    //send data control
+    /*
+    //send write attributes control
     zclWriteCmd_t wrtcmd; 
     wrtcmd.numAttr = 1;
     wrtcmd.attrList[0].attrID = ATTRID_ON_OFF;
@@ -727,9 +726,9 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     zclSampleLight_DstAddr.addr.shortAddr = 0xFFFC;
     zclSampleLight_DstAddr.endPoint = SAMPLELIGHT_ENDPOINT;
     zcl_SendWrite(SAMPLELIGHT_ENDPOINT,&zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &wrtcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0 ); 
-    
+    */
     /*
-    //send command: read attribute to router
+    //send command: read attributes to router
     zclReadCmd_t readcmd;
     readcmd.numAttr = 1;
     readcmd.attrID[0] = 0;
@@ -746,14 +745,16 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     zcl_SendRead(SAMPLELIGHT_ENDPOINT, &zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &readcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0);
     //zcl_SendReadRsp(SAMPLELIGHT_ENDPOINT, &zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &readcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0);
     */
-    /*
+    
     //send command on/off
     afAddrType_t destaddr;
     destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
-    destaddr.addrMode = (afAddrMode_t)Addr16Bit;
-    destaddr.addr.shortAddr = 0xFFFC;
-    zcl_SendCommand(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, COMMAND_TOGGLE, TRUE , ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, FALSE , 0, 0, 1, 0);
-    */
+    destaddr.addrMode = (afAddrMode_t)Addr16Bit; //AddrBroadcast; 
+    destaddr.addr.shortAddr = 0x0DFA;
+    if(zclSampleLight_OnOff==LIGHT_ON)
+      zcl_SendCommand(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, COMMAND_ON, TRUE , ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0, 0, 0, (uint8*)&zclSampleLight_OnOff);
+    else 
+      zcl_SendCommand(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, COMMAND_OFF, TRUE , ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0, 0, 0, (uint8*)&zclSampleLight_OnOff);
     /*
     afAddrType_t destaddr;
     destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
@@ -767,6 +768,23 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     cmdx.attrList[0].attrData = (uint8*)&zclSampleLight_OnOff;
     zcl_SendWriteRequest(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &cmdx, ZCL_CMD_WRITE, ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0);
     */
+  }
+  
+  if ( keys & HAL_KEY_SW_7 )
+  {
+    /*
+    // enable permit joining on all routers
+    zAddrType_t dstAddr;
+    dstAddr.addrMode = Addr16Bit;//AddrBroadcast;
+    dstAddr.addr.shortAddr = 0xFFFF;          
+    ZDP_MgmtPermitJoinReq(&dstAddr, 0xFF, TRUE, FALSE);
+    */
+    afAddrType_t destaddr;
+    destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
+    destaddr.addrMode = (afAddrMode_t)AddrBroadcast;
+    destaddr.addr.shortAddr = 0xFFFF;
+    
+    zclGeneral_SendSceneRequest(SAMPLELIGHT_ENDPOINT, &destaddr, COMMAND_SCENE_VIEW, 0, 0, FALSE, 0);
   }
 }
 
@@ -1076,11 +1094,11 @@ static void zclSampleLight_OnOffCB( uint8 cmd )
     }
   }
   
-  //update light state into NV memory
-  if (osal_nv_item_len(ZCD_NV_LIGHT_STATE))
-  {
-    osal_nv_write(ZCD_NV_LIGHT_STATE, 0, 1, &zclSampleLight_OnOff);
-  }
+//  //update light state into NV memory
+//  if (osal_nv_item_len(ZCD_NV_LIGHT_STATE))
+//  {
+//    osal_nv_write(ZCD_NV_LIGHT_STATE, 0, 1, &zclSampleLight_OnOff);
+//  }
   
 #if ZCL_LEVEL_CTRL
   zclSampleLight_DefaultMove( );
