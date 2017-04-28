@@ -241,7 +241,7 @@ void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
      */
     HAL_KEY_SW_6_ICTL |= HAL_KEY_SW_6_ICTLBIT;
     HAL_KEY_SW_6_IEN |= HAL_KEY_SW_6_IENBIT;
-    HAL_KEY_SW_6_PXIFG = ~(HAL_KEY_SW_6_BIT);
+    HAL_KEY_SW_6_PXIFG &= ~(HAL_KEY_SW_6_BIT);
 
 
   
@@ -250,7 +250,8 @@ void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
     //HAL_KEY_JOY_MOVE_ICTL &= ~(HAL_KEY_JOY_MOVE_EDGEBIT);    /* Clear the edge bit */
     /* For falling edge, the bit must be set. */
   //#if (HAL_KEY_JOY_MOVE_EDGE == HAL_KEY_FALLING_EDGE)
-    HAL_KEY_JOY_MOVE_ICTL |= HAL_KEY_JOY_MOVE_EDGEBIT;
+    //HAL_KEY_JOY_MOVE_ICTL |=  BV(0);//;HAL_KEY_JOY_MOVE_EDGEBIT;
+    PICTL |= HAL_KEY_JOY_MOVE_EDGEBIT; //set interrupt in P2 
   //#endif
 
 
@@ -261,7 +262,7 @@ void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
      */
     HAL_KEY_JOY_MOVE_ICTL |= HAL_KEY_JOY_MOVE_ICTLBIT;
     HAL_KEY_JOY_MOVE_IEN |= HAL_KEY_JOY_MOVE_IENBIT;
-    HAL_KEY_JOY_MOVE_PXIFG = ~(HAL_KEY_JOY_MOVE_BIT);
+    HAL_KEY_JOY_MOVE_PXIFG &= ~(HAL_KEY_JOY_MOVE_BIT);
 
 
     /* Do this only after the hal_key is configured - to work with sleep stuff */
@@ -350,12 +351,10 @@ void HalKeyPoll (void)
   {
     keys |= HAL_KEY_SW_6;
   }
-//  else if(P2_0==0) // if SW7 is pressed 
-//    {
-//      keys |= HAL_KEY_SW_7;
-//      HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
-//    }
-//  
+  if (!PUSH2_SBIT) //if SW7 is pressed
+  {
+    keys |= HAL_KEY_SW_7;
+  }
   
   /* Invoke Callback if new keys were depressed */
   if (keys && (pHalKeyProcessFunction))
@@ -530,29 +529,7 @@ HAL_ISR_FUNCTION( halKeyPort2Isr, P2INT_VECTOR )
   
   if (HAL_KEY_JOY_MOVE_PXIFG & HAL_KEY_JOY_MOVE_BIT)
   {
-    //halProcessKeyInterrupt();
-    // toggle local light immediately
-    zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
-    if(zclSampleLight_OnOff==LIGHT_ON)
-    {
-      HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
-    }
-    else 
-    {
-      HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
-    }
-    /*
-    //update light state into NV memory
-    if (osal_nv_item_len(ZCD_NV_LIGHT_STATE))
-    {
-      osal_nv_write(ZCD_NV_LIGHT_STATE, 0, 1, &zclSampleLight_OnOff);
-    }
-    */
-    // enable permit joining on all routers
-    zAddrType_t dstAddr;
-    dstAddr.addrMode = Addr16Bit;//AddrBroadcast;
-    dstAddr.addr.shortAddr = 0xFFFC;          
-    ZDP_MgmtPermitJoinReq(&dstAddr, 0xFF, TRUE, FALSE);
+    halProcessKeyInterrupt();
   }
 
   /*
