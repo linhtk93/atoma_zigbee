@@ -89,6 +89,10 @@
 #include "hal_key.h"
 #include "osal.h"
 
+#include "zcl_samplelight.h"
+#include "hal_led.h"
+#include "zcl_general.h"
+#include "ZDProfile.h"
 #if (defined HAL_KEY) && (HAL_KEY == TRUE)
 
 /**************************************************************************************************
@@ -223,11 +227,11 @@ void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
   {
     /* Rising/Falling edge configuratinn */
 
-    PICTL &= ~(HAL_KEY_SW_6_EDGEBIT);    /* Clear the edge bit */
+    //PICTL &= ~(HAL_KEY_SW_6_EDGEBIT);    /* Clear the edge bit */
     /* For falling edge, the bit must be set. */
-  #if (HAL_KEY_SW_6_EDGE == HAL_KEY_FALLING_EDGE)
+  //#if (HAL_KEY_SW_6_EDGE == HAL_KEY_FALLING_EDGE)
     PICTL |= HAL_KEY_SW_6_EDGEBIT;
-  #endif
+  //#endif
 
 
     /* Interrupt configuration:
@@ -243,11 +247,11 @@ void HalKeyConfig (bool interruptEnable, halKeyCBack_t cback)
   
     /* Rising/Falling edge configuratinn */
 
-    HAL_KEY_JOY_MOVE_ICTL &= ~(HAL_KEY_JOY_MOVE_EDGEBIT);    /* Clear the edge bit */
+    //HAL_KEY_JOY_MOVE_ICTL &= ~(HAL_KEY_JOY_MOVE_EDGEBIT);    /* Clear the edge bit */
     /* For falling edge, the bit must be set. */
-  #if (HAL_KEY_JOY_MOVE_EDGE == HAL_KEY_FALLING_EDGE)
+  //#if (HAL_KEY_JOY_MOVE_EDGE == HAL_KEY_FALLING_EDGE)
     HAL_KEY_JOY_MOVE_ICTL |= HAL_KEY_JOY_MOVE_EDGEBIT;
-  #endif
+  //#endif
 
 
     /* Interrupt configuration:
@@ -341,21 +345,26 @@ void HalKeyPoll (void)
   {
     /* Key interrupt handled here */
   }
-
-  if (!PUSH2_SBIT)
-  {
-    keys |= HAL_KEY_SW_7;
-  }
   
-  if (!PUSH1_SBIT)
+  if (!PUSH1_SBIT) //if SW6 is pressed
   {
     keys |= HAL_KEY_SW_6;
   }
+//  else if(P2_0==0) // if SW7 is pressed 
+//    {
+//      keys |= HAL_KEY_SW_7;
+//      HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
+//    }
+//  
+  
   /* Invoke Callback if new keys were depressed */
   if (keys && (pHalKeyProcessFunction))
   {
     (pHalKeyProcessFunction) (keys, HAL_KEY_STATE_NORMAL);
   }
+      
+  osal_stop_timerEx(Hal_TaskID, HAL_KEY_EVENT);  /* Cancel polling if active */
+    
 }
 
 /**************************************************************************************************
@@ -521,7 +530,29 @@ HAL_ISR_FUNCTION( halKeyPort2Isr, P2INT_VECTOR )
   
   if (HAL_KEY_JOY_MOVE_PXIFG & HAL_KEY_JOY_MOVE_BIT)
   {
-    halProcessKeyInterrupt();
+    //halProcessKeyInterrupt();
+    // toggle local light immediately
+    zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
+    if(zclSampleLight_OnOff==LIGHT_ON)
+    {
+      HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
+    }
+    else 
+    {
+      HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
+    }
+    /*
+    //update light state into NV memory
+    if (osal_nv_item_len(ZCD_NV_LIGHT_STATE))
+    {
+      osal_nv_write(ZCD_NV_LIGHT_STATE, 0, 1, &zclSampleLight_OnOff);
+    }
+    */
+    // enable permit joining on all routers
+    zAddrType_t dstAddr;
+    dstAddr.addrMode = Addr16Bit;//AddrBroadcast;
+    dstAddr.addr.shortAddr = 0xFFFC;          
+    ZDP_MgmtPermitJoinReq(&dstAddr, 0xFF, TRUE, FALSE);
   }
 
   /*

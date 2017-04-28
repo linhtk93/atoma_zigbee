@@ -676,12 +676,10 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
     if(zclSampleLight_OnOff==LIGHT_ON)
     {
-      //HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //turn on led1- muc tich cuc am
       HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
     }
     else 
     {
-      //HalLedSet(HAL_LED_1, HAL_LED_MODE_ON );  //turn off led1
       HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
     }
     /*
@@ -749,8 +747,18 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     //send command on/off
     afAddrType_t destaddr;
     destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
-    destaddr.addrMode = (afAddrMode_t)Addr16Bit; //AddrBroadcast; 
-    destaddr.addr.shortAddr = 0x0DFA;
+    destaddr.addrMode = (afAddrMode_t)AddrBroadcast; //Addr64Bit; //Addr16Bit; //AddrBroadcast; 
+    destaddr.addr.shortAddr = 0xFFFC;
+//    destaddr.addrMode = (afAddrMode_t)Addr64Bit; 
+//    destaddr.addr.extAddr[0] = 0x00;
+//    destaddr.addr.extAddr[1] = 0x12;
+//    destaddr.addr.extAddr[2] = 0x4B;
+//    destaddr.addr.extAddr[3] = 0x00;
+//    destaddr.addr.extAddr[4] = 0x0F;
+//    destaddr.addr.extAddr[5] = 0xFE;
+//    destaddr.addr.extAddr[6] = 0xCD;
+//    destaddr.addr.extAddr[7] = 0x2C;
+    
     if(zclSampleLight_OnOff==LIGHT_ON)
       zcl_SendCommand(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, COMMAND_ON, TRUE , ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0, 0, 0, (uint8*)&zclSampleLight_OnOff);
     else 
@@ -772,19 +780,32 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
   
   if ( keys & HAL_KEY_SW_7 )
   {
-    /*
+    
     // enable permit joining on all routers
     zAddrType_t dstAddr;
-    dstAddr.addrMode = Addr16Bit;//AddrBroadcast;
-    dstAddr.addr.shortAddr = 0xFFFF;          
+    dstAddr.addrMode = (afAddrMode_t)AddrBroadcast;//AddrBroadcast;
+    dstAddr.addr.shortAddr = 0xFFFC;          
     ZDP_MgmtPermitJoinReq(&dstAddr, 0xFF, TRUE, FALSE);
-    */
+    
+    // toggle local light immediately
+    zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
+    if(zclSampleLight_OnOff==LIGHT_ON)
+    {
+      HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
+    }
+    else 
+    {
+      HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
+    }
+    
+    /*
     afAddrType_t destaddr;
     destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
     destaddr.addrMode = (afAddrMode_t)AddrBroadcast;
     destaddr.addr.shortAddr = 0xFFFF;
     
     zclGeneral_SendSceneRequest(SAMPLELIGHT_ENDPOINT, &destaddr, COMMAND_SCENE_VIEW, 0, 0, FALSE, 0);
+    */
   }
 }
 

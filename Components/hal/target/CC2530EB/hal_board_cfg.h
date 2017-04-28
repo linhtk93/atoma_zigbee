@@ -158,7 +158,7 @@
 /* Joystick Center Press */
 #define PUSH2_BV          BV(0)
 #define PUSH2_SBIT        P2_0
-#define PUSH2_POLARITY    ACTIVE_HIGH
+#define PUSH2_POLARITY    ACTIVE_LOW
 
 /* ------------------------------------------------------------------------------------------------
  *                                    LCD Configuration
