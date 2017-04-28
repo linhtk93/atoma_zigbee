@@ -780,23 +780,23 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
   
   if ( keys & HAL_KEY_SW_7 )
   {
-    
+    /*
     // enable permit joining on all routers
     zAddrType_t dstAddr;
     dstAddr.addrMode = (afAddrMode_t)AddrBroadcast;//AddrBroadcast;
     dstAddr.addr.shortAddr = 0xFFFC;          
     ZDP_MgmtPermitJoinReq(&dstAddr, 0xFF, TRUE, FALSE);
-    
+    */
     // toggle local light immediately
-    zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
-    if(zclSampleLight_OnOff==LIGHT_ON)
-    {
-      HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
-    }
-    else 
-    {
-      HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
-    }
+//    zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
+//    if(zclSampleLight_OnOff==LIGHT_ON)
+//    {
+//      HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
+//    }
+//    else 
+//    {
+//      HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
+//    }
     
     /*
     afAddrType_t destaddr;
@@ -806,6 +806,16 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     
     zclGeneral_SendSceneRequest(SAMPLELIGHT_ENDPOINT, &destaddr, COMMAND_SCENE_VIEW, 0, 0, FALSE, 0);
     */
+    uint8 ieee[8];
+    ieee[7] = 0x00;
+    ieee[6] = 0x12;
+    ieee[5] = 0x4B;
+    ieee[4] = 0x00;
+    ieee[3] = 0x08;
+    ieee[2] = 0xBF;
+    ieee[1] = 0xD9;
+    ieee[0] = 0xCF;
+    ZDP_NwkAddrReq(ieee, ZDP_ADDR_REQTYPE_SINGLE, 0, 0);
   }
 }
 

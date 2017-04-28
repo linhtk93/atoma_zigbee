@@ -70,7 +70,7 @@
 #include "hal_led.h"
 #include "hal_lcd.h"
 #include "hal_key.h"
-
+#include "zcl_sampleLight.h"
 #if defined( MT_MAC_FUNC ) || defined( MT_MAC_CB_FUNC )
   #error "ERROR! MT_MAC functionalities should be disabled on ZDO devices"
 #endif
@@ -1343,6 +1343,18 @@ void ZDApp_ProcessMsgCBs( zdoIncomingMsg_t *inMsg )
   {
 #if defined ( ZDO_NWKADDR_REQUEST ) || defined ( ZDO_IEEEADDR_REQUEST ) || defined ( REFLECTOR )
     case NWK_addr_rsp:
+      {
+        // toggle local light immediately
+        zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
+        if(zclSampleLight_OnOff==LIGHT_ON)
+        {
+          HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
+        }
+        else 
+        {
+          HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
+        }
+      }
     case IEEE_addr_rsp:
       {
         ZDO_NwkIEEEAddrResp_t *pAddrRsp;
