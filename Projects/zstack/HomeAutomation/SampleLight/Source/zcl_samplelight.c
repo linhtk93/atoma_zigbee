@@ -743,7 +743,7 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     zcl_SendRead(SAMPLELIGHT_ENDPOINT, &zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &readcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0);
     //zcl_SendReadRsp(SAMPLELIGHT_ENDPOINT, &zclSampleLight_DstAddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &readcmd, ZCL_FRAME_CLIENT_SERVER_DIR, TRUE, 0);
     */
-    
+    /*
     //send command on/off
     afAddrType_t destaddr;
     destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
@@ -763,6 +763,7 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
       zcl_SendCommand(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, COMMAND_ON, TRUE , ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0, 0, 0, (uint8*)&zclSampleLight_OnOff);
     else 
       zcl_SendCommand(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, COMMAND_OFF, TRUE , ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0, 0, 0, (uint8*)&zclSampleLight_OnOff);
+    */
     /*
     afAddrType_t destaddr;
     destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
@@ -776,6 +777,17 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     cmdx.attrList[0].attrData = (uint8*)&zclSampleLight_OnOff;
     zcl_SendWriteRequest(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, &cmdx, ZCL_CMD_WRITE, ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0);
     */
+    //control via IEEE address
+    uint8 ieee[8];
+    ieee[7] = 0x00;
+    ieee[6] = 0x12;
+    ieee[5] = 0x4B;
+    ieee[4] = 0x00;
+    ieee[3] = 0x08;
+    ieee[2] = 0xBF;
+    ieee[1] = 0xD9;
+    ieee[0] = 0xCF;
+    ZDP_NwkAddrReq(ieee, ZDP_ADDR_REQTYPE_SINGLE, 0, 0);
   }
   
   if ( keys & HAL_KEY_SW_7 )
@@ -788,15 +800,15 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     ZDP_MgmtPermitJoinReq(&dstAddr, 0xFF, TRUE, FALSE);
     */
     // toggle local light immediately
-//    zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
-//    if(zclSampleLight_OnOff==LIGHT_ON)
-//    {
-//      HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
-//    }
-//    else 
-//    {
-//      HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
-//    }
+    zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
+    if(zclSampleLight_OnOff==LIGHT_ON)
+    {
+      HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
+    }
+    else 
+    {
+      HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
+    }
     
     /*
     afAddrType_t destaddr;
@@ -811,11 +823,12 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     ieee[6] = 0x12;
     ieee[5] = 0x4B;
     ieee[4] = 0x00;
-    ieee[3] = 0x08;
-    ieee[2] = 0xBF;
-    ieee[1] = 0xD9;
-    ieee[0] = 0xCF;
+    ieee[3] = 0x0F;
+    ieee[2] = 0xEE;
+    ieee[1] = 0xCD;
+    ieee[0] = 0x2C;
     ZDP_NwkAddrReq(ieee, ZDP_ADDR_REQTYPE_SINGLE, 0, 0);
+    
   }
 }
 

@@ -74,7 +74,7 @@
 #if defined( MT_MAC_FUNC ) || defined( MT_MAC_CB_FUNC )
   #error "ERROR! MT_MAC functionalities should be disabled on ZDO devices"
 #endif
-
+#include "zcl_general.h"
 /*********************************************************************
  * CONSTANTS
  */
@@ -1344,16 +1344,16 @@ void ZDApp_ProcessMsgCBs( zdoIncomingMsg_t *inMsg )
 #if defined ( ZDO_NWKADDR_REQUEST ) || defined ( ZDO_IEEEADDR_REQUEST ) || defined ( REFLECTOR )
     case NWK_addr_rsp:
       {
-        // toggle local light immediately
-        zclSampleLight_OnOff = zclSampleLight_OnOff ? LIGHT_OFF : LIGHT_ON;
+        //send command on/off
+        afAddrType_t destaddr;
+        destaddr.endPoint = SAMPLELIGHT_ENDPOINT;
+        destaddr.addrMode = (afAddrMode_t)Addr16Bit; //Addr64Bit; //Addr16Bit; //AddrBroadcast; 
+        destaddr.addr.shortAddr = inMsg->srcAddr.addr.shortAddr; //add short address of device
+       
         if(zclSampleLight_OnOff==LIGHT_ON)
-        {
-          HalLedSet(HAL_LED_1, HAL_LED_MODE_ON ); //relay on
-        }
+          zcl_SendCommand(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, COMMAND_ON, TRUE , ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0, 0, 0, (uint8*)&zclSampleLight_OnOff);
         else 
-        {
-          HalLedSet(HAL_LED_1, HAL_LED_MODE_OFF ); //relay off
-        }
+          zcl_SendCommand(SAMPLELIGHT_ENDPOINT, &destaddr, ZCL_CLUSTER_ID_GEN_ON_OFF, COMMAND_OFF, TRUE , ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0, 0, 0, (uint8*)&zclSampleLight_OnOff);
       }
     case IEEE_addr_rsp:
       {
