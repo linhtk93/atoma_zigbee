@@ -818,17 +818,24 @@ static void zclSampleLight_HandleKeys( byte shift, byte keys )
     
     zclGeneral_SendSceneRequest(SAMPLELIGHT_ENDPOINT, &destaddr, COMMAND_SCENE_VIEW, 0, 0, FALSE, 0);
     */
-    uint8 ieee[8];
-    ieee[7] = 0x00;
-    ieee[6] = 0x12;
-    ieee[5] = 0x4B;
-    ieee[4] = 0x00;
-    ieee[3] = 0x0F;
-    ieee[2] = 0xEE;
-    ieee[1] = 0xCD;
-    ieee[0] = 0x2C;
-    ZDP_NwkAddrReq(ieee, ZDP_ADDR_REQTYPE_SINGLE, 0, 0);
-    
+//    uint8 ieee[8];
+//    ieee[7] = 0x00;
+//    ieee[6] = 0x12;
+//    ieee[5] = 0x4B;
+//    ieee[4] = 0x00;
+//    ieee[3] = 0x0F;
+//    ieee[2] = 0xEE;
+//    ieee[1] = 0xCD;
+//    ieee[0] = 0x2C;
+//    ZDP_NwkAddrReq(ieee, ZDP_ADDR_REQTYPE_SINGLE, 0, 0);
+//    
+    zAddrType_t tmpAddr;
+    tmpAddr.addrMode = (afAddrMode_t)AddrBroadcast;
+    tmpAddr.addr.shortAddr = 0xFFFC; //NLME_GetShortAddr();
+    // toggle permit join
+    gPermitDuration = gPermitDuration ? 0 : 90;
+    // Trust Center significance is always true
+    ZDP_MgmtPermitJoinReq( &tmpAddr, gPermitDuration, TRUE, FALSE );
   }
 }
 
